@@ -35,7 +35,8 @@ module.exports = {
     'no-console': ["error", {allow: ["tron"]}],
     'react/jsx-props-no-spreading' : 'off',
     'no-unused-vars' : 'off',
-    'react/prop-types' : 'off'
+    'react/prop-types' : 'off',
+    'no-underscore-dangle': 'off'
   },
   settings: {
     'import/resolver' : {
