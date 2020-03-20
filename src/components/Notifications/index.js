@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { MdNotifications } from 'react-icons/md';
 import { parseISO, formatDistance } from 'date-fns';
 import pt from 'date-fns/locale/pt';
+import socketio from 'socket.io-client';
+import UIfx from 'uifx';
+import mp3file from '../../assets/plucky.mp3';
 
 import api from '~/services/api';
 
@@ -16,11 +20,34 @@ import {
 export default function Notifications() {
   const [visible, setVisible] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const beep = new UIfx(mp3file, {
+    volume: 0.9,
+    throttleMs: 100,
+  });
 
   const hasUnread = useMemo(
     () => !!notifications.find(notification => notification.read === false),
     [notifications]
   );
+
+  const user = useSelector(state => state.user.profile);
+
+  const socket = useMemo(
+    () =>
+      socketio('http://localhost:3000', {
+        query: {
+          user_id: user.id,
+        },
+      }),
+    [user.id]
+  );
+
+  useEffect(() => {
+    socket.on('notification', notification => {
+      setNotifications([notification, ...notifications]);
+      beep.play();
+    });
+  }, [socket, notifications, beep]);
 
   useEffect(() => {
     async function loadNotifications() {
